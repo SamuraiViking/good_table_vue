@@ -2,7 +2,8 @@
   <div>
     <vue-good-table
       :columns="columns"
-      :rows="rows"/>
+      :rows="rows"
+      />
   </div>
 </template>
 
@@ -16,26 +17,112 @@ export default {
         {
           label: 'Status',
           field: 'status',
+          filterOptions: {
+            placeholder: ' ',
+            enabled: true,
+            filterDropdownItems: ['C','O']
+          }
         },
         {
           label: 'Name',
-          field: 'name'
+          field: 'name',
+          filterOptions: {
+            placeholder: ' ',
+            enabled: true
+          }
         },
         {
           label: 'Department',
-          field: 'department'
+          field: 'dept_num_section',
+          filterOptions: {
+            placeholder: ' ',
+            enabled: true,
+            filterDropdownItems: [
+              {text: "africa and the americas", value: "AFAM"},
+              {text: "american conversation", value: "AMCON"},
+              {text: "american studies", value: "AMST"},
+              {text: "art and art history", value: "ART"},
+              {text: "asian studies", value: "ASIAN"},
+              {text: "biology", value: "BIO"},
+              {text: "biomedical studies", value: "BMED"},
+              {text: "biomolecular science", value: "BMOLS"},
+              {text: "chemistry", value: "CHEM"},
+              {text: "chinese", value: "CHIN"},
+              {text: "classics", value: "CLASS"},
+              {text: "computer science", value: "CSCI"},
+              {text: "dance", value: "DANCE"},
+              {text: "economics", value: "ECON"},
+              {text: "education", value: "EDUC"},
+              {text: "english", value: "ENGL"},
+              {text: "environmental studies", value: "ENVST"},
+              {text: "exercise science activity", value: "ESAC"},
+              {text: "exercise science theory", value: "ESTH"},
+              {text: "family studies", value: "FAMST"},
+              {text: "film studies", value: "FILM"},
+              {text: "french", value: "FREN"},
+              {text: "gender studies", value: "WMGST"},
+              {text: "german", value: "GERM"},
+              {text: "great conversation", value: "GCON"},
+              {text: "greek", value: "GREEK"},
+              {text: "hispanic studies", value: "HSPST"},
+              {text: "history", value: "HIST"},
+              {text: "integrative studies", value: "IS"},
+              {text: "interdepartmental", value: "INTD"},
+              {text: "interdisciplinary fine arts", value: "IDFA"},
+              {text: "interdisciplinary", value: "ID"},
+              {text: "japanese", value: "JAPAN"},
+              {text: "latin", value: "LATIN"},
+              {text: "linguistics", value: "LNGST"},
+              {text: "management studies", value: "MGMT"},
+              {text: "math/stat/csci", value: "MSCS"},
+              {text: "mathematics", value: "MATH"},
+              {text: "media studies", value: "MEDIA"},
+              {text: "medieval studies", value: "MEDVL"},
+              {text: "music performance", value: "MUSPF"},
+              {text: "music", value: "MUSIC"},
+              {text: "neuroscience", value: "NEURO"},
+              {text: "norwegian", value: "NORW"},
+              {text: "nursing", value: "NURS"},
+              {text: "philosphy", value: "PHIL"},
+              {text: "physics", value: "PHYS"},
+              {text: "political science", value: "PSCI"},
+              {text: "psychology", value: "PSYCH"},
+              {text: "religion", value: "REL"},
+              {text: "russian studies", value: "RUSSN"},
+              {text: "science conversation", value: "SCICN"},
+              {text: "social work", value: "SWRK"},
+              {text: "sociology and anthropology", value: "SOAN"},
+              {text: "spanish", value: "SPAN"},
+              {text: "statistics", value: "STAT"},
+              {text: "theater", value: "THEAT"},
+              {text: "womens and gender studies", value: "WMGST"},
+              {text: "writing", value: "WRIT"}
+            ]
+          }
         },
         {
-          label: 'Number',
-          field: 'number'
-        },
-        {
-          label: 'Section',
-          field: 'section'
+          label: 'Days',
+          field: 'days',
         },
         {
           label: 'Times',
           field: 'times'
+        },
+        {
+          label: 'Prof',
+          field: 'prof'
+        },
+        {
+          label: 'Rating',
+          field: 'rating',
+        },
+        {
+          label: 'Difficulty',
+          field: 'difficulty',
+        },
+        {
+          label: 'Reviews',
+          field: 'reviews'
         }
       ],
       rows: [],
