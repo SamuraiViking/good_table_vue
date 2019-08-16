@@ -1,9 +1,38 @@
 <template>
   <div>
+    <h1>2019 - 20 Fall</h1>
+    <modal name="hello-world">
+      {{ moreInfo }}
+    </modal>
     <vue-good-table
       :columns="columns"
       :rows="rows"
-      />
+      styleClass="vgt-table condensed bordered striped"
+      :sort-options="{
+        enabled: true,
+      }"
+      :pagination-options="{
+        enabled: true,
+        mode: 'records',
+        perPage: 6,
+        position: 'bottom',
+        perPageDropdown: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        dropdownAllowAll: false,
+        setCurrentPage: 2,
+        nextLabel: 'next',
+        prevLabel: 'prev',
+        rowsPerPageLabel: 'Rows per page',
+        ofLabel: 'of',
+        pageLabel: 'page', // for 'pages' mode
+        allLabel: 'All',
+      }">
+      <template slot="table-row" slot-scope="props">
+        <span v-if="props.column.field === 'actions'" v-on:click="moreInfoModel(props)">
+          <button type="button" class="btn btn-primary">View Details</button>
+        </span>
+        <span v-else> {{ props.formattedRow[props.column.field] }} </span>
+      </template>
+    </vue-good-table>
   </div>
 </template>
 
@@ -13,29 +42,34 @@ export default {
   name: 'my-component',
   data() {
     return {
+      moreInfo: 'more information about the course',
+      expandedIds: [],
       columns: [
         {
           label: 'Status',
           field: 'status',
           filterOptions: {
-            placeholder: ' ',
+            placeholder: 'All',
             enabled: true,
-            filterDropdownItems: ['C','O']
+            filterDropdownItems: [
+              {text: 'Open', value: 'O'},
+              {text: 'Closed', value: 'C'}
+            ]
           }
         },
         {
           label: 'Name',
           field: 'name',
           filterOptions: {
-            placeholder: ' ',
+            placeholder: 'filter name',
             enabled: true
           }
         },
         {
           label: 'Department',
-          field: 'dept_num_section',
+          field: 'department',
           filterOptions: {
-            placeholder: ' ',
+            placeholder: 'All',
             enabled: true,
             filterDropdownItems: [
               {text: "africa and the americas", value: "AFAM"},
@@ -101,29 +135,63 @@ export default {
           }
         },
         {
+          label: 'Number',
+          field: 'number',
+          filterOptions: {
+            enabled: true
+          }
+        },
+        {
           label: 'Days',
           field: 'days',
+          filterOptions: {
+            placeholder: 'All',
+            enabled: true,
+            filterDropdownItems: [
+              {text: 'MWF', value: 'MWF'},
+              {text: 'TTh', value: 'TTh'},
+              {text: 'M-F', value: 'M-F'},
+            ]
+          }
         },
         {
           label: 'Times',
-          field: 'times'
+          field: 'times',
+          filterOptions: {
+            placeholder: 'All',
+            enabled: true,
+            filterDropdownItems: [
+              {text: '', value: ''}
+            ]
+          }
         },
         {
           label: 'Prof',
-          field: 'prof'
+          field: 'prof',
+          filterOptions: {
+            placeholder: 'filter prof',
+            enabled: true
+          }
         },
         {
           label: 'Rating',
           field: 'rating',
+          type: 'number',
         },
         {
           label: 'Difficulty',
           field: 'difficulty',
+          type: 'number',
         },
         {
           label: 'Reviews',
-          field: 'reviews'
-        }
+          field: 'reviews',
+          type: 'number',
+        },
+        {
+          label: 'Actions',
+          field: 'actions'
+        },
       ],
       rows: [],
     };
@@ -132,6 +200,18 @@ export default {
     axios.get('api/courses?term=20191&type=class').then(response => {
       this.rows = response.data.courses;
     });
+  },
+  methods: {
+    moreInfoModel(props) {
+      this.moreInfo = props.row.description;
+      this.show();
+    },
+    show() {
+      this.$modal.show('hello-world');
+    },
+    hide() {
+      this.$modal.hide('hello-world');
+    },
   }
 };
 </script>
