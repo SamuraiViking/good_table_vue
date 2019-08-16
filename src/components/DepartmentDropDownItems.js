@@ -1,4 +1,4 @@
-[
+export default [
   {text: "africa and the americas", value: "AFAM"},
   {text: "american conversation", value: "AMCON"},
   {text: "american studies", value: "AMST"},

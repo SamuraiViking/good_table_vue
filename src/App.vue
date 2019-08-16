@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <button v-on:click="showDyanmicModel()">Dyanmic</button>
     <span v-if="year !== 2019">NOT CURRENT YEAR</span>
     <button v-on:click="getUserTermCourses()">My Courses</button>
     <button v-on:click="getTermCourses()">Term Courses</button>
@@ -23,10 +24,16 @@
         {{ moreInfo.notes }}
       </div>
     </modal>
-    <div>
-      <multiselect v-model="value" tag-placeholder="Add this as new tag" placeholder="Search or add a tag" label="name" track-by="code" :options="options" :multiple="true" :taggable="true" @tag="addTag"></multiselect>
-      <!-- <pre class="language-json"><code>{{ value  }}</code></pre> -->
-    </div>
+    <modal name="filter-options"
+      :width="600"
+    >
+      <div>
+        <label>Department:</label>
+        <multiselect v-model="value" tag-placeholder="Add this as new tag" placeholder="Search or add a tag" label="text" track-by="value" :options="options" :multiple="true" @tag="addTag"></multiselect>
+      </div>
+      <button>Search</button>
+    </modal>
+    <button v-on:click="showFilterOptions">Advanced Show Options</button>
     <vue-good-table
       :fixed-header="true"
       max-height="600px"
@@ -62,13 +69,9 @@ export default {
   data() {
     return {
       value: [
-        { name: 'Javascript', code: 'js' }
+        { text: 'All', value: 'All' }
       ],
-      options: [
-        { name: 'Vue.js', code: 'vu' },
-        { name: 'Javascript', code: 'js' },
-        { name: 'Open Source', code: 'os' }
-      ],
+      options: departmentDropDownItems,
       courseTypeOptions: [
         'Class', 
         'Lab', 
@@ -96,7 +99,7 @@ export default {
           field: 'status',
           filterOptions: {
             placeholder: 'All',
-            enabled: true,
+            enabled: false,
             filterDropdownItems: [
               {text: 'Open', value: 'O'},
               {text: 'Closed', value: 'C'}
@@ -120,74 +123,14 @@ export default {
           filterOptions: {
             placeholder: 'All',
             enabled: true,
-            filterDropdownItems: [
-              {text: "africa and the americas", value: "AFAM"},
-              {text: "american conversation", value: "AMCON"},
-              {text: "american studies", value: "AMST"},
-              {text: "art and art history", value: "ART"},
-              {text: "asian studies", value: "ASIAN"},
-              {text: "biology", value: "BIO"},
-              {text: "biomedical studies", value: "BMED"},
-              {text: "biomolecular science", value: "BMOLS"},
-              {text: "chemistry", value: "CHEM"},
-              {text: "chinese", value: "CHIN"},
-              {text: "classics", value: "CLASS"},
-              {text: "computer science", value: "CSCI"},
-              {text: "dance", value: "DANCE"},
-              {text: "economics", value: "ECON"},
-              {text: "education", value: "EDUC"},
-              {text: "english", value: "ENGL"},
-              {text: "environmental studies", value: "ENVST"},
-              {text: "exercise science activity", value: "ESAC"},
-              {text: "exercise science theory", value: "ESTH"},
-              {text: "family studies", value: "FAMST"},
-              {text: "film studies", value: "FILM"},
-              {text: "french", value: "FREN"},
-              {text: "gender studies", value: "WMGST"},
-              {text: "german", value: "GERM"},
-              {text: "great conversation", value: "GCON"},
-              {text: "greek", value: "GREEK"},
-              {text: "hispanic studies", value: "HSPST"},
-              {text: "history", value: "HIST"},
-              {text: "integrative studies", value: "IS"},
-              {text: "interdepartmental", value: "INTD"},
-              {text: "interdisciplinary fine arts", value: "IDFA"},
-              {text: "interdisciplinary", value: "ID"},
-              {text: "japanese", value: "JAPAN"},
-              {text: "latin", value: "LATIN"},
-              {text: "linguistics", value: "LNGST"},
-              {text: "management studies", value: "MGMT"},
-              {text: "math/stat/csci", value: "MSCS"},
-              {text: "mathematics", value: "MATH"},
-              {text: "media studies", value: "MEDIA"},
-              {text: "medieval studies", value: "MEDVL"},
-              {text: "music performance", value: "MUSPF"},
-              {text: "music", value: "MUSIC"},
-              {text: "neuroscience", value: "NEURO"},
-              {text: "norwegian", value: "NORW"},
-              {text: "nursing", value: "NURS"},
-              {text: "philosphy", value: "PHIL"},
-              {text: "physics", value: "PHYS"},
-              {text: "political science", value: "PSCI"},
-              {text: "psychology", value: "PSYCH"},
-              {text: "religion", value: "REL"},
-              {text: "russian studies", value: "RUSSN"},
-              {text: "science conversation", value: "SCICN"},
-              {text: "social work", value: "SWRK"},
-              {text: "sociology and anthropology", value: "SOAN"},
-              {text: "spanish", value: "SPAN"},
-              {text: "statistics", value: "STAT"},
-              {text: "theater", value: "THEAT"},
-              {text: "womens and gender studies", value: "WMGST"},
-              {text: "writing", value: "WRIT"}
-            ]
+            filterDropdownItems: departmentDropDownItems
           }
         },
         {
           label: 'Number',
           field: 'number',
           filterOptions: {
-            enabled: true
+            enabled: false,
           },
           type: 'number',
           tdClass: 'text-center',
@@ -196,7 +139,7 @@ export default {
           label: "GE's",
           field: 'gereqs',
           filterOptions: {
-            enabled: true,
+            enabled: false,
             filterDropdownItems: [
               'WRI',
               'HWC'
@@ -208,7 +151,7 @@ export default {
           field: 'days',
           filterOptions: {
             placeholder: 'All',
-            enabled: true,
+            enabled: false,
             filterDropdownItems: [
               {text: 'MWF', value: 'MWF'},
               {text: 'TTh', value: 'TTh'},
@@ -221,7 +164,7 @@ export default {
           field: 'times',
           filterOptions: {
             placeholder: 'All',
-            enabled: true,
+            enabled: false,
             filterDropdownItems: [
               {text: '', value: ''}
             ]
@@ -232,7 +175,7 @@ export default {
         //   field: 'prof',
         //   filterOptions: {
         //     placeholder: 'filter prof',
-        //     enabled: true
+        //     enabled: falsee
         //   }
         // },
         // {
@@ -258,7 +201,7 @@ export default {
           label: 'Actions',
           field: 'actions',
           filterOptions: {
-            enabled: true,
+            enabled: false,
             filterDropdownItems: [
               'Class',
               'Independent Research',
@@ -279,9 +222,10 @@ export default {
   methods: {
     addTag(newTag) {
       const tag = {
-        name: newTag,
-        code: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
+        label: newTag,
+        value: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
       };
+      console.log(tag);
       this.options.push(tag);
       this.value.push(tag);
     },
@@ -294,6 +238,9 @@ export default {
     },
     show() {
       this.$modal.show('hello-world');
+    },
+    showFilterOptions() {
+      this.$modal.show('filter-options');
     },
     hide() {
       this.$modal.hide('hello-world');
@@ -354,6 +301,23 @@ export default {
       axios.post(`api/course_terms?course_id=${row.id}&term_id=${this.userTerm.id}`).then(response => {
         this.getUserTermCourses();
       });
+    },
+    showDyanmicModel() {
+      this.$modal.show({
+        template: `
+          <div>
+            <h1>This is created inline</h1>
+            <p>{{ text }}</p>
+          </div>
+        `,
+        props: ['text']
+      }, {
+        text: 'This text is passed as a property'
+      }, {
+        height: '200px'
+      }, {
+        'before-close': (event) => { console.log('this will be called before the modal closes'); }
+      })
     }
   }
 };
