@@ -23,6 +23,10 @@
         {{ moreInfo.notes }}
       </div>
     </modal>
+    <div>
+      <multiselect v-model="value" tag-placeholder="Add this as new tag" placeholder="Search or add a tag" label="name" track-by="code" :options="options" :multiple="true" :taggable="true" @tag="addTag"></multiselect>
+      <!-- <pre class="language-json"><code>{{ value  }}</code></pre> -->
+    </div>
     <vue-good-table
       :fixed-header="true"
       max-height="600px"
@@ -46,12 +50,39 @@
 
 <script>
 import axios from "axios";
-import DepartmentDropDownItems from "./components/DepartmentDropDownItems.vue";
+import departmentDropDownItems from "./components/DepartmentDropDownItems.js";
+import Multiselect from 'vue-multiselect';
 
+console.log(departmentDropDownItems);
 export default {
+  components: {
+    Multiselect
+  },
   name: 'my-component',
   data() {
     return {
+      value: [
+        { name: 'Javascript', code: 'js' }
+      ],
+      options: [
+        { name: 'Vue.js', code: 'vu' },
+        { name: 'Javascript', code: 'js' },
+        { name: 'Open Source', code: 'os' }
+      ],
+      courseTypeOptions: [
+        'Class', 
+        'Lab', 
+        'Independent Research',
+        'Independent Study',
+        'Academic Internship'
+      ],
+      valueTypeValues: [
+        'Class',
+        'Lab',
+        'IR',
+        'IS',
+        'AI'
+      ],
       year: 2019,
       semester: 1,
       moreInfo: {
@@ -79,7 +110,8 @@ export default {
           field: 'name',
           filterOptions: {
             placeholder: 'filter name',
-            enabled: true
+            enabled: true,
+            filterDropdownItems: departmentDropDownItems
           }
         },
         {
@@ -161,6 +193,17 @@ export default {
           tdClass: 'text-center',
         },
         {
+          label: "GE's",
+          field: 'gereqs',
+          filterOptions: {
+            enabled: true,
+            filterDropdownItems: [
+              'WRI',
+              'HWC'
+            ]
+          }
+        },
+        {
           label: 'Days',
           field: 'days',
           filterOptions: {
@@ -213,7 +256,16 @@ export default {
         },
         {
           label: 'Actions',
-          field: 'actions'
+          field: 'actions',
+          filterOptions: {
+            enabled: true,
+            filterDropdownItems: [
+              'Class',
+              'Independent Research',
+              'Independent Study',
+              'Academic Internship',
+            ]       
+          }
         },
       ],
       rows: [],
@@ -225,6 +277,14 @@ export default {
     });
   },
   methods: {
+    addTag(newTag) {
+      const tag = {
+        name: newTag,
+        code: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
+      };
+      this.options.push(tag);
+      this.value.push(tag);
+    },
     moreInfoModel(props) {
       this.moreInfo.description = props.row.description;
       this.moreInfo.prereqs = props.row.prerequisites;
@@ -290,12 +350,16 @@ export default {
     tdStatusClassFunc(row) {
       return row.status === 'C' ? 'red-class' : 'green-class';
     },
-    // addCourse(row) {
-      
-    // }
+    addCourse(row) {
+      axios.post(`api/course_terms?course_id=${row.id}&term_id=${this.userTerm.id}`).then(response => {
+        this.getUserTermCourses();
+      });
+    }
   }
 };
 </script>
+
+<style src="vue-multiselect/dist/vue-multiselect.min.css"></style>
 
 <style>
 
