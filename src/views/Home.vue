@@ -1,31 +1,29 @@
 <template>
   <div>
     <h1>2019 - 20 Fall</h1>
-    <modal name="hello-world">
-      {{ moreInfo }}
+    <modal name="hello-world"
+           :width="1000"
+           :height="450"
+    >
+      <div style="padding:30px">
+        <h3>Prereqs</h3>
+        {{ moreInfo.prereqs }}
+        <h3>Description</h3>
+        {{ moreInfo.description }}
+        <h3>Notes</h3>
+        {{ moreInfo.notes }}
+      </div>
     </modal>
     <vue-good-table
+      :fixed-header="true"
+      max-height="600px"
       :columns="columns"
       :rows="rows"
       styleClass="vgt-table condensed bordered striped"
       :sort-options="{
         enabled: true,
       }"
-      :pagination-options="{
-        enabled: true,
-        mode: 'records',
-        perPage: 6,
-        position: 'bottom',
-        perPageDropdown: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        dropdownAllowAll: false,
-        setCurrentPage: 2,
-        nextLabel: 'next',
-        prevLabel: 'prev',
-        rowsPerPageLabel: 'Rows per page',
-        ofLabel: 'of',
-        pageLabel: 'page', // for 'pages' mode
-        allLabel: 'All',
-      }">
+    >
       <template slot="table-row" slot-scope="props">
         <span v-if="props.column.field === 'actions'" v-on:click="moreInfoModel(props)">
           <button type="button" class="btn btn-primary">View Details</button>
@@ -38,11 +36,17 @@
 
 <script>
 import axios from "axios";
+
+
 export default {
   name: 'my-component',
   data() {
     return {
-      moreInfo: 'more information about the course',
+      moreInfo: {
+        'description': '',
+        'prereqs': '',
+        'notes': '',
+      },
       expandedIds: [],
       columns: [
         {
@@ -139,7 +143,8 @@ export default {
           field: 'number',
           filterOptions: {
             enabled: true
-          }
+          },
+          type: 'number'
         },
         {
           label: 'Days',
@@ -165,29 +170,29 @@ export default {
             ]
           }
         },
-        {
-          label: 'Prof',
-          field: 'prof',
-          filterOptions: {
-            placeholder: 'filter prof',
-            enabled: true
-          }
-        },
-        {
-          label: 'Rating',
-          field: 'rating',
-          type: 'number',
-        },
-        {
-          label: 'Difficulty',
-          field: 'difficulty',
-          type: 'number',
-        },
-        {
-          label: 'Reviews',
-          field: 'reviews',
-          type: 'number',
-        },
+        // {
+        //   label: 'Prof',
+        //   field: 'prof',
+        //   filterOptions: {
+        //     placeholder: 'filter prof',
+        //     enabled: true
+        //   }
+        // },
+        // {
+        //   label: 'Rating',
+        //   field: 'rating',
+        //   type: 'number',
+        // },
+        // {
+        //   label: 'Difficulty',
+        //   field: 'difficulty',
+        //   type: 'number',
+        // },
+        // {
+        //   label: 'Reviews',
+        //   field: 'reviews',
+        //   type: 'number',
+        // },
         {
           label: 'Actions',
           field: 'actions'
@@ -203,7 +208,10 @@ export default {
   },
   methods: {
     moreInfoModel(props) {
-      this.moreInfo = props.row.description;
+      this.moreInfo.description = props.row.description;
+      this.moreInfo.prereqs = props.row.prerequisites;
+      this.moreInfo.description = props.row.description;
+      this.moreInfo.notes = props.row.notes;
       this.show();
     },
     show() {
