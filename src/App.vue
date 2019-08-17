@@ -1,9 +1,6 @@
 <template>
   <div id="app">
-    <button v-on:click="showDyanmicModel()">Dyanmic</button>
     <span v-if="year !== 2019">NOT CURRENT YEAR</span>
-    <button v-on:click="getUserTermCourses()">My Courses</button>
-    <button v-on:click="getTermCourses()">Term Courses</button>
     <div id="term-display">
       <div>
         <button v-on:click="changeSemester(-1)"> < </button>
@@ -11,9 +8,23 @@
         <button v-on:click="changeSemester(1)"> > </button>
       </div>
     </div>
+    <div style="display:flex">
+      <form>
+        <select v-model="selectedUserType" v-on:change="getCourses()">
+          <option v-for="userType in userTypes">{{ userType }}</option>
+        </select>
+      </form>
+      <form v-if="selectedUserType === 'Stolaf'">
+        <select v-model="selectedCourseType" v-on:change="getCourses()">
+          <option v-for="courseType in courseTypes" v-bind:value="courseType.value"> {{ courseType.text }}</option>
+        </select>
+      </form>
+      <p v-if="selectedUserType==='My'">Courses</p>
+    </div>
+<!--     <button v-on:click="getUserTermCourses()">My Courses</button>
+    <button v-on:click="getStOlafTermCourses()">Term Courses</button> -->
     <modal name="hello-world"
            :width="1000"
-           :height="450"
     >
       <div style="padding:30px">
         <h3>Prereqs</h3>
@@ -24,30 +35,19 @@
         {{ moreInfo.notes }}
       </div>
     </modal>
-    <modal name="filter-options"
-      :width="600"
-    >
-      <div>
-        <label>Department:</label>
-        <multiselect v-model="value" tag-placeholder="Add this as new tag" placeholder="Search or add a tag" label="text" track-by="value" :options="options" :multiple="true" @tag="addTag"></multiselect>
-      </div>
-      <button>Search</button>
-    </modal>
-    <button v-on:click="showFilterOptions">Advanced Show Options</button>
     <vue-good-table
       :fixed-header="true"
-      max-height="600px"
+      :sort-options="{ enabled: true }"
+      max-height="1000px"
       :columns="columns"
       :rows="rows"
       styleClass="vgt-table condensed bordered striped"
-      :sort-options="{
-        enabled: true,
-      }"
-    >
+  >
       <template slot="table-row" slot-scope="props">
         <span v-if="props.column.field === 'actions'">
-          <button type="button" class="btn btn-primary" v-on:click="moreInfoModel(props)">View Details</button>
-          <button type="button" class="btn btn-primary" v-on:click="addCourse(props)">Add Course</button>
+          <button type="button" class="btn btn-primary" v-on:click="moreInfoModel(props)">View</button>
+          <button type="button" class="btn btn-primary" v-on:click="addCourse(props)">Add</button>
+          <button type="button" class="btn btn-primary" v-on:click="removeCourse(props)">Remove</button>
         </span>
         <span v-else> {{ props.formattedRow[props.column.field] }} </span>
       </template>
@@ -60,7 +60,6 @@ import axios from "axios";
 import departmentDropDownItems from "./components/DepartmentDropDownItems.js";
 import Multiselect from 'vue-multiselect';
 
-console.log(departmentDropDownItems);
 export default {
   components: {
     Multiselect
@@ -68,9 +67,18 @@ export default {
   name: 'my-component',
   data() {
     return {
-      value: [
-        { text: 'All', value: 'All' }
+      userTypes: ['My', 'Stolaf'],
+      selectedUserType: 'Stolaf',
+      selectedCourseType: 'class',
+      courseTypes: [
+        { text: 'Classes', value: 'class'},
+        { text: 'Labs', value: 'lab'},
+        { text: 'Independent Studyies', value: 'IS'},
+        { text: 'Independent Research', value: 'IR'},
+        { text: 'Academent Internship', value: 'AI'},
       ],
+      mySelectedRows: [],
+      userTermId: '',
       options: departmentDropDownItems,
       courseTypeOptions: [
         'Class', 
@@ -130,7 +138,7 @@ export default {
           label: 'Number',
           field: 'number',
           filterOptions: {
-            enabled: false,
+            enabled: true,
           },
           type: 'number',
           tdClass: 'text-center',
@@ -139,7 +147,7 @@ export default {
           label: "GE's",
           field: 'gereqs',
           filterOptions: {
-            enabled: false,
+            enabled: true,
             filterDropdownItems: [
               'WRI',
               'HWC'
@@ -151,7 +159,7 @@ export default {
           field: 'days',
           filterOptions: {
             placeholder: 'All',
-            enabled: false,
+            enabled: true,
             filterDropdownItems: [
               {text: 'MWF', value: 'MWF'},
               {text: 'TTh', value: 'TTh'},
@@ -164,7 +172,7 @@ export default {
           field: 'times',
           filterOptions: {
             placeholder: 'All',
-            enabled: false,
+            enabled: true,
             filterDropdownItems: [
               {text: '', value: ''}
             ]
@@ -201,7 +209,7 @@ export default {
           label: 'Actions',
           field: 'actions',
           filterOptions: {
-            enabled: false,
+            enabled: true,
             filterDropdownItems: [
               'Class',
               'Independent Research',
@@ -218,16 +226,13 @@ export default {
     axios.get('api/courses?term=20191&type=class').then(response => {
       this.rows = response.data.courses;
     });
+    axios.get('api/terms?term=20191').then(response => {
+      this.userTermId = response.data[0].id
+    })
   },
   methods: {
-    addTag(newTag) {
-      const tag = {
-        label: newTag,
-        value: newTag.substring(0, 2) + Math.floor((Math.random() * 10000000))
-      };
-      console.log(tag);
-      this.options.push(tag);
-      this.value.push(tag);
+    getCourses() {
+      this.selectedUserType === 'Stolaf' ? this.getStOlafTermCourses() : this.getUserTermCourses()
     },
     moreInfoModel(props) {
       this.moreInfo.description = props.row.description;
@@ -245,10 +250,11 @@ export default {
     hide() {
       this.$modal.hide('hello-world');
     },
-    getTermCourses() {
-      axios.get(`api/courses?term=${this.year}${this.semester}&type=class`).then(response => {
+    getStOlafTermCourses() {
+      axios.get(`api/courses?term=${this.year}${this.semester}&type=${this.selectedCourseType}`).then(response => {
         this.rows = response.data.courses;
       });
+      console.log(this.selectedCourseType)
     },
     changeSemester(change) {
       if (this.semester + change > 5 && this.year < 2022) {
@@ -260,11 +266,13 @@ export default {
       } else if (this.semester + change <= 5 && this.semester + change >= 1) {
         this.semester += change;
       }
-      this.getTermCourses();
+      this.getStOlafTermCourses();
     },
     getUserTermCourses() {
+      console.log('hello')
       axios.get(`api/terms?term=${this.year}${this.semester}`).then(response => {
         this.rows = response.data[0].courses;
+        this.userTermId = response.data[0].id
       });
     },
     semesterNumToName() {
@@ -297,28 +305,14 @@ export default {
     tdStatusClassFunc(row) {
       return row.status === 'C' ? 'red-class' : 'green-class';
     },
-    addCourse(row) {
-      axios.post(`api/course_terms?course_id=${row.id}&term_id=${this.userTerm.id}`).then(response => {
+    addCourse(props) {
+      axios.post(`api/course_terms?course_id=${props.row.id}&term_id=${this.userTermId}`)
+    },
+    removeCourse(props) {
+      axios.delete(`api/course_terms/${this.userTermId}/${props.row.id}`).then(response => {
         this.getUserTermCourses();
       });
     },
-    showDyanmicModel() {
-      this.$modal.show({
-        template: `
-          <div>
-            <h1>This is created inline</h1>
-            <p>{{ text }}</p>
-          </div>
-        `,
-        props: ['text']
-      }, {
-        text: 'This text is passed as a property'
-      }, {
-        height: '200px'
-      }, {
-        'before-close': (event) => { console.log('this will be called before the modal closes'); }
-      })
-    }
   }
 };
 </script>
